@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat n8n</title>
+    <!-- Importando o estilo do chat do n8n -->
+    <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
+    <!-- Importando o Bootstrap para estilização -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        .chat-container {
+            width: 100%;
+            max-width: 600px;
+            margin-top: 20px;
+        }
+        .chat-window {
+            height: 500px;
+            overflow-y: auto;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .input-area {
+            margin-top: 10px;
+        }
+        .message {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #e9ecef;
+        }
+        .message.user {
+            background-color: #007bff;
+            color: white;
+        }
+        .message.bot {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <div class="chat-window" id="chat-window">
+            <!-- As mensagens aparecerão aqui -->
+        </div>
+
+        <div class="input-area">
+            <div class="input-group">
+                <input type="text" id="user-input" class="form-control" placeholder="Digite sua mensagem...">
+                <div class="input-group-append">
+                    <button class="btn btn-primary" id="send-button">Enviar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+
+        // Utilize a URL mascarada do webhook
+        const webhookUrl = 'https://webhook.n8n.datawiseservice.com/webhook-chat';
+        const chatWindow = document.getElementById('chat-window');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+
+        // Função para adicionar mensagens no chat
+        function addMessage(content, sender = 'bot') {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', sender);
+            messageElement.textContent = content;
+            chatWindow.appendChild(messageElement);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        // Função para enviar mensagens ao webhook
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (message === '') return;
+
+            // Adicionar mensagem do usuário no chat
+            addMessage(message, 'user');
+            userInput.value = '';
+
+            try {
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message }),
+                });
+
+                const data = await response.json();
+                const botMessage = data.response || 'Nenhuma resposta recebida.';
+                addMessage(botMessage);
+            } catch (error) {
+                addMessage('Erro ao se comunicar com o servidor.');
+            }
+        }
+
+        // Evento de clique no botão "Enviar"
+        sendButton.addEventListener('click', sendMessage);
+
+        // Permitir enviar mensagens pressionando Enter
+        userInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
