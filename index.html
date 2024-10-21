@@ -66,7 +66,7 @@
     </div>
 
     <script>
-        const webhookUrl = 'https://webhook.n8n.datawiseservice.com/webhook-test/chat'; // Coloque aqui o link do seu webhook do n8n
+        const webhookUrl = 'https://webhook.n8n.datawiseservice.com/webhook-test/chat'; // Certifique-se de que o link está correto
         const chatWindow = document.getElementById('chat-window');
         const userInput = document.getElementById('user-input');
         const sendButton = document.getElementById('send-button');
@@ -98,14 +98,17 @@
                     body: JSON.stringify({ message }),
                 });
 
+                // Certifique-se de processar a resposta corretamente
                 const data = await response.json();
-                console.log("Resposta recebida:", data); // Log da resposta no console
-
-                const botMessage = data.response || 'Nenhuma resposta recebida.';
-                addMessage(botMessage);
+                
+                if (data && data.output) {
+                    addMessage(data.output, 'bot'); // Adiciona a resposta do webhook no chat
+                } else {
+                    addMessage('Nenhuma resposta recebida.', 'bot');
+                }
             } catch (error) {
-                console.error("Erro ao se comunicar com o servidor:", error); // Log de erro no console
-                addMessage('Erro ao se comunicar com o servidor.');
+                addMessage('Erro ao se comunicar com o servidor.', 'bot');
+                console.error(error); // Adiciona essa linha para ajudar a debugar o erro no console
             }
         }
 
