@@ -99,9 +99,12 @@
                 });
 
                 const data = await response.json();
+                console.log("Resposta recebida:", data); // Log da resposta no console
+
                 const botMessage = data.response || 'Nenhuma resposta recebida.';
                 addMessage(botMessage);
             } catch (error) {
+                console.error("Erro ao se comunicar com o servidor:", error); // Log de erro no console
                 addMessage('Erro ao se comunicar com o servidor.');
             }
         }
