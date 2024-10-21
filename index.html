@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Simples</title>
+    <!-- Importando o Bootstrap para estilização -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
         body {
             display: flex;
@@ -13,7 +15,7 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #f8f8f8;
+            background-color: #f4f4f4;
         }
         .chat-container {
             width: 100%;
@@ -42,78 +44,77 @@
             color: white;
         }
         .message.bot {
-            background-color: #f1f1f1;
+            background-color: #f5f5f5;
         }
     </style>
 </head>
 <body>
 
-<div class="chat-container">
-    <div class="chat-window" id="chat-window">
-        <!-- As mensagens aparecerão aqui -->
-    </div>
+    <div class="chat-container">
+        <div class="chat-window" id="chat-window">
+            <!-- As mensagens aparecerão aqui -->
+        </div>
 
-    <div class="input-area">
-        <div class="input-group">
-            <input type="text" id="user-input" class="form-control" placeholder="Digite sua mensagem...">
-            <div class="input-group-append">
-                <button class="btn btn-primary" id="send-button">Enviar</button>
+        <div class="input-area">
+            <div class="input-group">
+                <input type="text" id="user-input" class="form-control" placeholder="Digite sua mensagem...">
+                <div class="input-group-append">
+                    <button class="btn btn-primary" id="send-button">Enviar</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-    const webhookUrl = 'https://webhook.n8n.datawiseservice.com/chat'; // Coloque a URL correta do seu webhook
-    const chatWindow = document.getElementById('chat-window');
-    const userInput = document.getElementById('user-input');
-    const sendButton = document.getElementById('send-button');
+    <script>
+        const webhookUrl = 'https://webhook.n8n.datawiseservice.com/chat'; // Coloque aqui o link do seu webhook do n8n
+        const chatWindow = document.getElementById('chat-window');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
 
-    // Função para adicionar mensagens no chat
-    function addMessage(content, sender = 'bot') {
-        const messageElement = document.createElement('div');
-        messageElement.classList.add('message', sender);
-        messageElement.textContent = content;
-        chatWindow.appendChild(messageElement);
-        chatWindow.scrollTop = chatWindow.scrollHeight;
-    }
-
-    // Função para enviar mensagens ao webhook
-    async function sendMessage() {
-        const message = userInput.value.trim();
-        if (message === '') return;
-
-        // Adicionar mensagem do usuário no chat
-        addMessage(message, 'user');
-        userInput.value = '';
-
-        try {
-            const response = await fetch(webhookUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ message }),
-            });
-
-            const data = await response.json();
-            const botMessage = data.response || 'Nenhuma resposta recebida.';
-            addMessage(botMessage);
-        } catch (error) {
-            addMessage('Erro ao se comunicar com o servidor.');
+        // Função para adicionar mensagens ao chat
+        function addMessage(content, sender = 'bot') {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', sender);
+            messageElement.textContent = content;
+            chatWindow.appendChild(messageElement);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
         }
-    }
 
-    // Evento de clique no botão "Enviar"
-    sendButton.addEventListener('click', sendMessage);
+        // Função para enviar mensagens ao webhook
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (message === '') return;
 
-    // Permitir enviar mensagens pressionando Enter
-    userInput.addEventListener('keypress', function(event) {
-        if (event.key === 'Enter') {
-            sendMessage();
+            // Adicionar a mensagem do usuário ao chat
+            addMessage(message, 'user');
+            userInput.value = '';
+
+            try {
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message }),
+                });
+
+                const data = await response.json();
+                const botMessage = data.response || 'Nenhuma resposta recebida.';
+                addMessage(botMessage);
+            } catch (error) {
+                addMessage('Erro ao se comunicar com o servidor.');
+            }
         }
-    });
-</script>
 
+        // Evento de clique no botão "Enviar"
+        sendButton.addEventListener('click', sendMessage);
+
+        // Permitir envio de mensagens pressionando "Enter"
+        userInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
 </body>
 </html>
