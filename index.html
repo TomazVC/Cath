@@ -95,14 +95,18 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ message }),
+                    // Certifique-se de que o campo enviado é 'userInput'
+                    body: JSON.stringify({ userInput: message }),
                 });
 
                 // Certifique-se de processar a resposta corretamente
                 const data = await response.json();
                 
-                if (data && data.output) {
-                    addMessage(data.output, 'bot'); // Adiciona a resposta do webhook no chat
+                // A resposta virá no campo "cpf" ou "message"
+                if (data && data.cpf) {
+                    addMessage(`CPF detectado: ${data.cpf}`, 'bot'); // Adiciona a resposta do webhook no chat
+                } else if (data && data.message) {
+                    addMessage(data.message, 'bot'); // Caso não encontre CPF, exibe mensagem de erro
                 } else {
                     addMessage('Nenhuma resposta recebida.', 'bot');
                 }
